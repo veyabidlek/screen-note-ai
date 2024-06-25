@@ -1,12 +1,39 @@
 "use client";
 import { useState, useEffect } from "react";
 
+const displayMediaOptions = {
+  video: { displaySurface: "browser" },
+  audio: false,
+  preferCurrentTab: false,
+  selfBrowserSurface: "exclude",
+  systemAudio: "include",
+  surfaceSwitching: "include",
+  monitorTypeSurfaces: "include",
+};
+
+let captureStream: any = null;
+const startCapture = async (displayMediaOptions: any) => {
+  try {
+    captureStream = await navigator.mediaDevices.getDisplayMedia(
+      displayMediaOptions
+    );
+  } catch (err) {
+    console.error(`Error: ${err}`);
+  }
+  return captureStream;
+};
+
+const endCapture = () => {
+  captureStream.getTracks().forEach((track: any) => track.stop());
+};
+
 const Timer = () => {
-  const [time, setTime] = useState(30 * 60); // 30 minutes in seconds
+  const [time, setTime] = useState(60); //1 minute in seconds
   const [isActive, setIsActive] = useState(false);
+  const [pause, setPause] = useState(false);
 
   useEffect(() => {
-    let timer;
+    let timer: any;
     if (isActive && time > 0) {
       timer = setInterval(() => {
         setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
@@ -18,19 +45,29 @@ const Timer = () => {
     return () => clearInterval(timer);
   }, [isActive, time]);
 
-  const formatTime = (time) => {
+  const formatTime = (time: any) => {
     const minutes = String(Math.floor(time / 60)).padStart(2, "0");
     const seconds = String(time % 60).padStart(2, "0");
     return `${minutes}:${seconds}`;
   };
 
-  const handleStartPause = () => {
+  const handleStart = () => {
     setIsActive(!isActive);
+  };
+
+  const startFunction = () => {
+    handleStart();
+    startCapture(displayMediaOptions);
   };
 
   const handleReset = () => {
     setIsActive(false);
-    setTime(30 * 60);
+    setTime(60);
+  };
+
+  const stopFunction = () => {
+    handleReset();
+    endCapture();
   };
 
   return (
@@ -39,18 +76,36 @@ const Timer = () => {
         <h1 className="text-2xl font-bold mb-4">Timer</h1>
         <div className="text-6xl font-mono mb-4">{formatTime(time)}</div>
         <div className="space-x-4">
-          <button
-            onClick={handleStartPause}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
-          >
-            {isActive ? "Pause" : "Start"}
-          </button>
-          <button
+          {isActive ? (
+            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+              Pause
+            </button>
+          ) : (
+            <button
+              onClick={startFunction}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+            >
+              Start
+            </button>
+          )}
+
+          {isActive ? (
+            <button
+              onClick={stopFunction}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+            >
+              Stop
+            </button>
+          ) : (
+            ""
+          )}
+
+          {/* <button  WHY NEED RESET?
             onClick={handleReset}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
           >
             Reset
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

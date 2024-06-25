@@ -71,10 +71,10 @@ const SearchBox = ({ ...props }) => (
 
 const Sidebar = () => {
   const lessons = [
-    { name: "Calculus 1", href: "javascript:void(0)" },
-    { name: "Python Fundamentals", href: "javascript:void(0)" },
-    { name: "Football Basics", href: "javascript:void(0)" },
-    { name: "Cristiano Ronaldo Documentary", href: "javascript:void(0)" },
+    { name: "Calculus 1", href: "#" },
+    { name: "Python Fundamentals", href: "#" },
+    { name: "Football Basics", href: "#" },
+    { name: "Cristiano Ronaldo Book", href: "#" },
   ];
 
   return (
