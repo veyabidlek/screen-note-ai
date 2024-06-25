@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
+import * as getVideoFrames from "https://deno.land/x/get_video_frames@v0.0.5/mod.js";
 
 const displayMediaOptions = {
-  video: { displaySurface: "browser" },
+  video: { mediaSource: "screen", displaySurface: "browser" },
   audio: false,
   preferCurrentTab: false,
   selfBrowserSurface: "exclude",
@@ -11,8 +12,12 @@ const displayMediaOptions = {
   monitorTypeSurfaces: "include",
 };
 
-let captureStream: any = null;
-const startCapture = async (displayMediaOptions: any) => {
+let captureStream: MediaStream;
+let mediaRecorder: MediaRecorder;
+let data: Blob[] = [];
+const startCapture = async (
+  displayMediaOptions: DisplayMediaStreamOptions
+): Promise<MediaStream> => {
   try {
     captureStream = await navigator.mediaDevices.getDisplayMedia(
       displayMediaOptions
@@ -20,11 +25,35 @@ const startCapture = async (displayMediaOptions: any) => {
   } catch (err) {
     console.error(`Error: ${err}`);
   }
+  mediaRecorder = new MediaRecorder(captureStream);
+  mediaRecorder.ondataavailable = (e: BlobEvent) => {
+    data.push(e.data);
+  };
+  mediaRecorder.start();
+
+  console.log(`Capture Stream: ${captureStream}`);
+  console.log("Screen Capture Started...");
   return captureStream;
 };
 
 const endCapture = () => {
-  captureStream.getTracks().forEach((track: any) => track.stop());
+  if (captureStream) {
+    captureStream.getTracks().forEach((track: any) => track.stop());
+  }
+  if (mediaRecorder) {
+    mediaRecorder.onstop = (e) => {
+      const videoElement = document.querySelector("video") as HTMLVideoElement;
+      if (data.length > 0) {
+        videoElement.src = URL.createObjectURL(
+          new Blob(data, { type: data[0].type })
+        );
+      }
+    };
+    console.log(`Media Recorder Data: ${data}`);
+    console.log(`Media Recorder : ${mediaRecorder}`);
+    mediaRecorder.stop();
+  }
+  console.log("Screen Capture Ended.");
 };
 
 const Timer = () => {
@@ -98,6 +127,10 @@ const Timer = () => {
             Reset
           </button> */}
         </div>
+      </div>
+      <div>
+        <h1 className="text-lg text-white text-border font-bold">Video Test</h1>
+        <video width="700" height="700" controls></video>
       </div>
     </div>
   );
