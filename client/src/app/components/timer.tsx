@@ -30,7 +30,6 @@ const endCapture = () => {
 const Timer = () => {
   const [time, setTime] = useState(60); //1 minute in seconds
   const [isActive, setIsActive] = useState(false);
-  const [pause, setPause] = useState(false);
 
   useEffect(() => {
     let timer: any;
@@ -51,12 +50,12 @@ const Timer = () => {
     return `${minutes}:${seconds}`;
   };
 
-  const handleStart = () => {
+  const handleStartPause = () => {
     setIsActive(!isActive);
   };
 
   const startFunction = () => {
-    handleStart();
+    handleStartPause();
     startCapture(displayMediaOptions);
   };
 
@@ -77,8 +76,11 @@ const Timer = () => {
         <div className="text-6xl font-mono mb-4">{formatTime(time)}</div>
         <div className="space-x-4">
           {isActive ? (
-            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
-              Pause
+            <button
+              onClick={stopFunction}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
+            >
+              Stop
             </button>
           ) : (
             <button
@@ -87,17 +89,6 @@ const Timer = () => {
             >
               Start
             </button>
-          )}
-
-          {isActive ? (
-            <button
-              onClick={stopFunction}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-200"
-            >
-              Stop
-            </button>
-          ) : (
-            ""
           )}
 
           {/* <button  WHY NEED RESET?
