@@ -1,12 +1,10 @@
 import { Router } from "express";
 import authRouter from "./auth/auth-router";
-
-// other routers can be imported here
+import screenshotRouter from "./screenshot-router";
 
 const globalRouter = Router();
 
 globalRouter.use(authRouter);
-
-// other routers can be added here
+globalRouter.use("/screenshot", screenshotRouter);
 
 export default globalRouter;
