@@ -99,6 +99,7 @@ const Timer = () => {
     endCapture();
   };
 
+  const [screenshots, setScreenshots] = useState<string[]>([]);
   const captureScreenshot = async () => {
     if (captureStream) {
       const videoTrack = captureStream.getVideoTracks()[0];
@@ -109,8 +110,9 @@ const Timer = () => {
       canvas.height = bitmap.height;
       const context = canvas.getContext("2d");
       context?.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
-      const img = canvas.toDataURL("image/png");
+      const img = canvas.toDataURL("image/jpeg");
       console.log(img);
+      setScreenshots((prevScreenshots) => [...prevScreenshots, img]);
     }
   };
 
@@ -133,6 +135,18 @@ const Timer = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [captureStream]);
+
+  //save to local storage until i get to backend
+  useEffect(() => {
+    const storedScreenshots = localStorage.getItem("screenshots");
+    if (storedScreenshots) {
+      setScreenshots(JSON.parse(storedScreenshots));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("screenshots", JSON.stringify(screenshots));
+  }, [screenshots]);
 
   return (
     <div className="bg-[url('https://www.krqe.com/wp-content/uploads/sites/12/2022/12/AdobeStock_81556974.jpeg?w=2560&h=1440&crop=1')] flex flex-col ml-[300px] items-center justify-center h-screen bg-gray-100 bg-no-repeat	bg-cover">
